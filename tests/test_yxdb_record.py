@@ -5,6 +5,19 @@ import unittest
 from yxdb._metainfo_field import MetaInfoField
 from yxdb._yxdb_record import YxdbRecord
 from yxdb.yxdb_field import DataType
+from yxdb.yxdb_reader import YxdbReader
+
+FIRST_RECORD_OF_TUTORIAL_DATA = {
+    'UserID': 100,
+    'First': 'Aisha',
+    'Last': 'Van Hengel',
+    'Prefix': 'Ms',
+    'Gender': '*~~//*~~//female',
+    'Birth Date': datetime.datetime(1980, 9, 22, 14, 53, 59),
+    'Registration Date/Time': datetime.datetime(2008, 7, 15, 20, 16, 14),
+    'Email': 'aisha.vanhengel@example.com',
+    'Country': 'NL'
+ }
 
 
 class TestYxdbRecord(unittest.TestCase):
@@ -167,6 +180,23 @@ class TestYxdbRecord(unittest.TestCase):
         self.assertEqual(4, record.fixed_size)
         self.assertEqual(True, record.has_var)
 
+    def test_extract_record_tuple(self):
+        path = "./test_files/TutorialData.yxdb"
+        with YxdbReader(path=path) as reader:
+            reader.next()
+            record = reader._record.extract_record_tuple(reader._record_reader.record_buffer)
+            self.assertIsInstance(record, tuple)
+            self.assertEqual(len(record), len(reader.list_fields()))
+            self.assertEqual(record, tuple(FIRST_RECORD_OF_TUTORIAL_DATA.values()))
+     
+    def test_extract_record_dict(self):
+        path = "./test_files/TutorialData.yxdb"
+        with YxdbReader(path=path) as reader:
+            reader.next()
+            record = reader._record.extract_record_dict(reader._record_reader.record_buffer)
+            self.assertIsInstance(record, dict)
+            self.assertEqual(len(record), len(reader.list_fields()))
+            self.assertEqual(record, FIRST_RECORD_OF_TUTORIAL_DATA)
 
 def load_record_with_value_column(data_type, size):
     return YxdbRecord([MetaInfoField("value", data_type, size, 0)])

@@ -1,9 +1,10 @@
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Tuple, Union
 
 from yxdb import _extractors
 from yxdb._metainfo_field import MetaInfoField
 from yxdb.yxdb_field import YxdbField, DataType
 
+YXDBValue = Union[bytes, bool, int, float, str]
 
 class YxdbRecord:
     def __init__(self, fields: List[MetaInfoField]):
@@ -25,6 +26,12 @@ class YxdbRecord:
             raise Exception(f"'{name}' is not a valid field name")
         index = self._name_to_index[name]
         return self._extractors[index](buffer)
+
+    def extract_record_tuple(self, buffer: memoryview) -> Tuple[YXDBValue, ...]:
+        return tuple(extractor(buffer) for extractor in self._extractors)
+
+    def extract_record_dict(self, buffer: memoryview) -> Dict[str, YXDBValue]:
+        return {field.name: self.extract_from_name(field.name, buffer) for field in self.fields}
 
     def _initialize(self, fields: List[MetaInfoField]):
         start_at = 0

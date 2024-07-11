@@ -54,7 +54,7 @@ class YxdbReader:
         self.meta_info_str = ''
         self._record: YxdbRecord = None
         self._record_reader: BufferedRecordReader = None
-
+        
         try:
             self._load_header_and_meta_info()
         except Exception:
@@ -82,6 +82,13 @@ class YxdbReader:
         """Returns the value in a field, specified by the field's name"""
 
         return self._record.extract_from_name(name, self._record_reader.record_buffer)
+
+    def read_record(self, dict:bool=False):
+        """Returns all values in the record as either a tuple or a dict"""
+        if dict:
+            return self._record.extract_record_dict(self._record_reader.record_buffer)
+        else:
+            return self._record.extract_record_tuple(self._record_reader.record_buffer)
 
     def list_fields(self) -> List[YxdbField]:
         """Provides the list of fields in the YXDB file"""
