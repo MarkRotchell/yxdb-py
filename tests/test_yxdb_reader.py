@@ -118,6 +118,17 @@ class TestYxdbReader(unittest.TestCase):
             self.assertEqual("'invalid field' is not a valid field name", str(e))
             traceback.print_exc()
 
+    def test_context_manager_works(self):
+        path = "./test_files/TutorialData.yxdb"
+        with YxdbReader(path=path) as reader:
+            self.assertIsInstance(reader, YxdbReader)
+            self.assertFalse(reader._stream.closed)
+            
+    def test_context_manager_closes(self):
+        path = "./test_files/TutorialData.yxdb"
+        with YxdbReader(path=path) as reader:
+            pass
+        self.assertTrue(reader._stream.closed)
 
 if __name__ == '__main__':
     unittest.main()
