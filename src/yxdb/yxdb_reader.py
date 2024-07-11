@@ -60,6 +60,14 @@ class YxdbReader:
         except Exception:
             raise Exception(invalid_yxdb_msg)
 
+    def __enter__(self):
+        """Provides ability to use YxdbReader as a context manager"""
+        return self
+    
+    def __exit__(self, *args, **kwargs):
+        """Ensures file is closed when YxdbReader is used as a context manager"""
+        self.close()
+
     def next(self) -> bool:
         """Returns True if a record is available and False if the end of the file is reached."""
 
